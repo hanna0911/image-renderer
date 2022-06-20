@@ -20,3 +20,4 @@ bin/PA2 testcases/scene06_bunny_1k.txt output/scene06.bmp
 bin/PA2 testcases/scene08_core.txt output/scene08.bmp
 bin/PA2 testcases/scene09_norm.txt output/scene09.bmp
 bin/PA2 testcases/scene10_wineglass.txt output/scene10.bmp
+bin/PA2 testcases/scene11_dragon.txt output/scene11.bmp
