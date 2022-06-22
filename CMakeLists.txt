@@ -27,7 +27,8 @@ SET(PA2_SOURCES
         src/mesh.cpp
         src/scene_parser.cpp
         src/camera_controller.cpp
-        src/texture.cpp)
+        src/texture.cpp
+        src/Renderer.cpp)
 
 SET(PA2_INCLUDES
         include/camera.hpp

@@ -9,7 +9,7 @@
 #include <experimental/algorithm>
 #include <random>
 #include "object3d.hpp"
-#include "boundingbox.hpp"
+#include "BoundingBox.hpp"
 
 // FINAL PROJECT
 class KDTree {

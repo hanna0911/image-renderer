@@ -1,22 +1,32 @@
 #include "Renderer.hpp"
+#include "scene_parser.hpp"
+#include "image.hpp"
+#include "camera.hpp"
+#include "group.hpp"
+#include "light.hpp"
+#include "camera_controller.hpp"
 #include <iostream>
 
 #include <limits>
 
-KDTree *root = NULL;
+// KDTree *root = NULL;
 
-Renderer::Renderer(const ArgParser &args) :
-    _args(args),
-    _scene(args.input_file) {}
+RayCasting::RayCasting(char* &input_file, char* &output_file) {
+    _input = input_file;
+    _output = output_file;
+}
 
 void
-Renderer::Render() {
+RayCasting::Render() {
+    /*
     int w = _args.width;
     int h = _args.height;
+
 
     Image image(w, h);
     Image nimage(w, h);
     Image dimage(w, h);
+    */
 
     // loop through all the pixels in the image
     // generate all the samples
@@ -24,7 +34,47 @@ Renderer::Render() {
     // This look generates camera rays and callse traceRay.
     // It also write to the color, normal, and depth images.
     // You should understand what this code does.
-    Camera *cam = _scene.getCamera();
+
+    // TODO: Main RayCasting Logic
+    // First, parse the scene using SceneParser.
+    // Then loop over each pixel in the image, shooting a ray
+    // through that pixel and finding its intersection with
+    // the scene.  Write the color at the intersection to that
+    // pixel in your output image.
+    SceneParser sceneParser(_input);
+    Camera* camera = sceneParser.getCamera();
+    Image renderedImg(camera->getWidth(), camera->getHeight());
+
+    // 循环屏幕空间的像素
+    for (int x = 0; x < camera->getWidth(); ++x) {
+        for (int y = 0; y < camera->getHeight(); ++y) {
+            // 计算当前像素(x,y)处相机出射光线camRay
+            Ray camRay = camera->generateRay(Vector2f(x, y)); 
+            Group* baseGroup = sceneParser.getGroup();
+            Hit hit;
+            // 判断camRay是否和场景有交点，并返回最近交点的数据，存储在hit中
+            bool isIntersect = baseGroup->intersect(camRay, hit, 0);
+            if (isIntersect) {
+                Vector3f finalColor = Vector3f::ZERO;
+                // 找到交点之后，累加来自所有光源的光强影响
+                for (int li = 0; li < sceneParser.getNumLights(); ++li) {
+                    Light* light = sceneParser.getLight(li);
+                    Vector3f L, lightColor;
+                    // 获得光照强度
+                    light->getIllumination(camRay.pointAtParameter(hit.getT()), L, lightColor); // 计算局部光强
+                    finalColor += hit.getMaterial()->Shade(camRay, hit, L, lightColor);
+                }
+                renderedImg.SetPixel(x, y, finalColor);
+            } else {
+            // 不存在交点，返回背景色
+                renderedImg.SetPixel(x, y, sceneParser.getBackgroundColor());
+            }
+        }
+    }
+    renderedImg.SaveImage(_output);
+    
+
+    /*
     for (int y = 0; y < h; ++y) {
         float ndcy = 2 * (y / (h - 1.0f)) - 1.0f;
         for (int x = 0; x < w; ++x) {
@@ -36,11 +86,11 @@ Renderer::Render() {
             Hit h;
             Vector3f color = traceRay(r, cam->getTMin(), _args.bounces, h);
 
-            image.setPixel(x, y, color);
-            nimage.setPixel(x, y, (h.getNormal() + 1.0f) / 2.0f);
+            image.SetPixel(x, y, color);
+            nimage.SetPixel(x, y, (h.getNormal() + 1.0f) / 2.0f);
             float range = (_args.depth_max - _args.depth_min);
             if (range) {
-                dimage.setPixel(x, y, Vector3f((h.t - _args.depth_min) / range));
+                dimage.SetPixel(x, y, Vector3f((h.getT() - _args.depth_min) / range));
             }
         }
     }
@@ -48,16 +98,18 @@ Renderer::Render() {
 
     // save the files
     if (_args.output_file.size()) {
-        image.savePNG(_args.output_file);
+        image.SaveImage(_args.output_file);
     }
     if (_args.depth_file.size()) {
-        dimage.savePNG(_args.depth_file);
+        dimage.SaveImage(_args.depth_file);
     }
     if (_args.normals_file.size()) {
-        nimage.savePNG(_args.normals_file);
+        nimage.SaveImage(_args.normals_file);
     }
+    */
 }
 
+/*
 Vector3f
 Renderer::traceRay(const Ray &r,
                    float tmin,
@@ -73,7 +125,7 @@ Renderer::traceRay(const Ray &r,
             Vector3f intensity;
             float distToLight;
             _scene.getLight(i)->getIllumination(p, tolight, intensity, distToLight);
-            Vector3f ILight = h.getMaterial()->shade(r, h, tolight, intensity);
+            Vector3f ILight = h.getMaterial()->Shade(r, h, tolight, intensity);
             // To compute cast shadows, you will send rays from the surface point to each
             // light source. If an intersection is reported, and the intersection is closer
             // than the distance to the light source, the current surface point is in shadow
@@ -111,4 +163,5 @@ Renderer::traceRay(const Ray &r,
         return _scene.getBackgroundColor(r.getDirection());
     };
 }
+*/
 
