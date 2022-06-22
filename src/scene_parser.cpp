@@ -16,6 +16,7 @@
 #include "transform.hpp"
 #include "curve.hpp"
 #include "revsurface.hpp"
+#include "texture.hpp"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -243,29 +244,42 @@ void SceneParser::parseMaterials() {
 
 Material *SceneParser::parseMaterial() {
     char token[MAX_PARSER_TOKEN_LENGTH];
-    char filename[MAX_PARSER_TOKEN_LENGTH];
-    filename[0] = 0;
-    Vector3f diffuseColor(1, 1, 1), specularColor(0, 0, 0);
-    float shininess = 0;
+    // char filename[MAX_PARSER_TOKEN_LENGTH];
+    // filename[0] = 0;
+    char textureFile[MAX_PARSER_TOKEN_LENGTH] = {0},
+         bumpFile[MAX_PARSER_TOKEN_LENGTH] = {0};
+    Vector3f diffuseColor(1, 1, 1), specularColor(0, 0, 0), emission(0, 0, 0), type(1, 0, 0);
+    float shininess = 0, refr = 1;
     getToken(token);
     assert (!strcmp(token, "{"));
     while (true) {
         getToken(token);
-        if (strcmp(token, "diffuseColor") == 0) {
+        if (strcmp(token, "diffuseColor") == 0 || strcmp(token, "color") == 0) {
             diffuseColor = readVector3f();
         } else if (strcmp(token, "specularColor") == 0) {
             specularColor = readVector3f();
         } else if (strcmp(token, "shininess") == 0) {
             shininess = readFloat();
+        } else if (strcmp(token, "refr") == 0) {
+            refr = readFloat();
         } else if (strcmp(token, "texture") == 0) {
             // Optional: read in texture and draw it.
-            getToken(filename);
+            getToken(textureFile);
+        } else if (strcmp(token, "bump") == 0) {
+            // Optional: read in texture and draw it.
+            getToken(bumpFile);
+        } else if (strcmp(token, "type") == 0) {
+            type = readVector3f();
+            type = type / (type.x() + type.y() + type.z());
+        } else if (strcmp(token, "emission") == 0) {
+            emission = readVector3f();
         } else {
             assert (!strcmp(token, "}"));
             break;
         }
     }
-    auto *answer = new Material(diffuseColor, specularColor, shininess);
+    auto *answer = new Material(diffuseColor, specularColor, shininess, emission, refr,
+                                type, textureFile, bumpFile);
     return answer;
 }
 

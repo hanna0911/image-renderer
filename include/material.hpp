@@ -8,15 +8,22 @@
 #include "hit.hpp"
 #include <iostream>
 #include <glut.h>
+#include "texture.hpp"
 
 // TODO (PA2): Copy from PA1.
 class Material {
 public:
 
-    explicit Material(const Vector3f &d_color, const Vector3f &s_color = Vector3f::ZERO, float s = 0) :
-            diffuseColor(d_color), specularColor(s_color), shininess(s) {
-
-    }
+    explicit Material(const Vector3f &d_color, const Vector3f &s_color = Vector3f::ZERO, float s = 0,
+                      const Vector3f &e_color = Vector3f::ZERO, float r = 1,
+                      Vector3f t = Vector3f(1, 0, 0),
+                      const char *textureFile = "", const char *bumpFile = "") 
+          : diffuseColor(d_color), specularColor(s_color), shininess(s),
+            emission(e_color),
+            refr(r),
+            type(t),
+            texture(textureFile),
+            bump(bumpFile) {}
 
     virtual ~Material() = default;
 
@@ -52,6 +59,15 @@ protected:
     Vector3f diffuseColor;
     Vector3f specularColor;
     float shininess;
+    Vector3f color;
+    Vector3f emission;
+    float refr;
+    Vector3f type;
+    Texture texture, bump;
+
+    float relu(float x){ 
+        return std::max((float)0, x); 
+    }
 };
 
 

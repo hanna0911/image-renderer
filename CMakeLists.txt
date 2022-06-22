@@ -26,7 +26,8 @@ SET(PA2_SOURCES
         src/main.cpp
         src/mesh.cpp
         src/scene_parser.cpp
-        src/camera_controller.cpp)
+        src/camera_controller.cpp
+        src/texture.cpp)
 
 SET(PA2_INCLUDES
         include/camera.hpp
@@ -45,7 +46,13 @@ SET(PA2_INCLUDES
         include/triangle.hpp
         include/camera_controller.hpp
         include/curve.hpp
-        include/revsurface.hpp)
+        include/revsurface.hpp
+        include/Renderer.hpp
+        include/CubeMap.hpp
+        include/BoundingBox.hpp
+        include/KDTree.hpp
+        include/stb_image.hpp
+        include/texture.hpp)
 
 SET(CMAKE_CXX_STANDARD 11)
 SET(CMAKE_CXX_FLAGS "-g -O3 -Wno-deprecated-declarations")

@@ -1,4 +1,8 @@
 .DS_Store
 bin/
 build/
-output/
+output/*
+*.cmake
+CMakeFiles/
+CMakeCache.txt
+.vscode

@@ -57,6 +57,10 @@ public:
         return group;
     }
 
+    const Vector3f & getAmbientLight() const {
+        return _ambient_light;
+    }
+
 private:
 
     void parseFile();
@@ -94,6 +98,7 @@ private:
     Material **materials;
     Material *current_material;
     Group *group;
+    Vector3f _ambient_light;
 };
 
 #endif // SCENE_PARSER_H

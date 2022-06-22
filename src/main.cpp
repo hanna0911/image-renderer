@@ -13,7 +13,6 @@
 #include "camera_controller.hpp"
 
 #include <string>
-#include <glut.h>
 
 using namespace std;
 
@@ -125,50 +124,49 @@ int main(int argc, char *argv[]) {
         std::cout << "Argument " << argNum << " is: " << argv[argNum] << std::endl;
     }
 
-    if (argc != 3 && argc != 2) {
-        cout << "Usage: PA2 <input scene file> [output image file]" << endl;
-        cout << "  If the output path is not specified, program will enter interactive mode." << endl;
+    if (argc != 3) {
+        // cout << "Usage: ./bin/PA1 <input scene file> <output bmp file>" << endl;
         return 1;
     }
+    string inputFile = argv[1];
+    string outputFile = argv[2];  // only bmp is allowed.
 
-    // Load Scene as before.
-    sceneParser = new SceneParser(argv[1]);
-    Camera *cam = sceneParser->getCamera();
-    float lookAtDistance = getCenterDepth();
-    cameraController = new CameraController(dynamic_cast<PerspectiveCamera *>(cam), lookAtDistance);
-
-    if (argc == 3) savePicturePath = argv[2];
-    cout << "Look At Distance = " << lookAtDistance << endl;
-
-    // Initialize GLUT
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowPosition(60, 60);
-    glutInitWindowSize(cam->getWidth(), cam->getHeight());
-    glutCreateWindow("PA2 BezierSurface");
-
-    // Depth testing must be turned on
-    glEnable(GL_DEPTH_TEST);
-    // Enable lighting calculations
-    glEnable(GL_LIGHTING);
-    // In case for non-uniform transform.
-    glEnable(GL_NORMALIZE);
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    // Set up callback functions for mouse
-    glutMouseFunc(mouseFunc);
-    glutMotionFunc(motionFunc);
-
-    // Set up the callback function for resizing windows
-    glutReshapeFunc(reshapeFunc);
-
-    // Call this whenever window needs redrawing
-    glutDisplayFunc(drawScene);
-
-    // Main UI Loop. This never returns.
-    glutMainLoop();
-
+    // TODO: Main RayCasting Logic
+    // First, parse the scene using SceneParser.
+    // Then loop over each pixel in the image, shooting a ray
+    // through that pixel and finding its intersection with
+    // the scene.  Write the color at the intersection to that
+    // pixel in your output image.
+    SceneParser sceneParser(argv[1]);
+    Camera* camera = sceneParser.getCamera();
+    Image renderedImg(camera->getWidth(), camera->getHeight());
+    // 循环屏幕空间的像素
+    for (int x = 0; x < camera->getWidth(); ++x) {
+        for (int y = 0; y < camera->getHeight(); ++y) {
+            // 计算当前像素(x,y)处相机出射光线camRay
+            Ray camRay = camera->generateRay(Vector2f(x, y)); 
+            Group* baseGroup = sceneParser.getGroup();
+            Hit hit;
+            // 判断camRay是否和场景有交点，并返回最近交点的数据，存储在hit中
+            bool isIntersect = baseGroup->intersect(camRay, hit, 0);
+            if (isIntersect) {
+                Vector3f finalColor = Vector3f::ZERO;
+                // 找到交点之后，累加来自所有光源的光强影响
+                for (int li = 0; li < sceneParser.getNumLights(); ++li) {
+                    Light* light = sceneParser.getLight(li);
+                    Vector3f L, lightColor;
+                    // 获得光照强度
+                    light->getIllumination(camRay.pointAtParameter(hit.getT()), L, lightColor); // 计算局部光强
+                    finalColor += hit.getMaterial()->Shade(camRay, hit, L, lightColor);
+                }
+                renderedImg.SetPixel(x, y, finalColor);
+            } else {
+            // 不存在交点，返回背景色
+                renderedImg.SetPixel(x, y, sceneParser.getBackgroundColor());
+            }
+        }
+    }
+    renderedImg.SaveImage(argv[2]);
     return 0;
 }
 

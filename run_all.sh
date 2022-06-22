@@ -21,3 +21,7 @@ bin/PA2 testcases/scene08_core.txt output/scene08.bmp
 bin/PA2 testcases/scene09_norm.txt output/scene09.bmp
 bin/PA2 testcases/scene10_wineglass.txt output/scene10.bmp
 bin/PA2 testcases/scene11_dragon.txt output/scene11.bmp
+bin/PA2 testcases/scene12_lucyangle.txt output/scene12.bmp
+bin/PA2 testcases/scene13_teapot.txt output/scene13.bmp
+bin/PA2 testcases/scene14_diamond.txt output/scene14.bmp
+bin/PA2 testcases/scene15_cornellbox.txt output/scene15.bmp

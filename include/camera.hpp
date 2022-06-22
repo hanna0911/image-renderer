@@ -55,6 +55,8 @@ public:
         width = w; height = h;
     }
 
+    virtual float getTMin() const = 0;
+
 protected:
     // Extrinsic parameters
     Vector3f center;
@@ -115,6 +117,11 @@ public:
         glLoadIdentity();
         // field of view in Y, aspect ratio, near crop and far crop.
         gluPerspective(fovyd, cx / cy, 0.01, 100.0);
+    }
+
+    virtual float getTMin() const override
+    {
+        return 0.0f;
     }
 };
 

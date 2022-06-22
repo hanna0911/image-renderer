@@ -5,6 +5,7 @@
 #include "hit.hpp"
 #include "material.hpp"
 #include <glut.h>
+#include "BoundingBox.hpp"
 
 // Base class for all 3d entities.
 class Object3D {
@@ -26,8 +27,13 @@ public:
         if (material) material->Use();
     }
 
-protected:
+    Material *getMaterial() const
+    {
+        return material;
+    }
+    BoundingBox box;
 
+protected:
     Material *material;
 };
 
